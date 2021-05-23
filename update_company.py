@@ -1,19 +1,21 @@
 # -*- coding: utf8 -*-
 from __future__ import print_function
 
-import argparse, urllib, io, os, sqlite3
+import urllib.request
+import io
 import pandas
+import database
 
 db_name = 'tw-stock.db'
 
 csv_link = 'https://quality.data.gov.tw/dq_download_csv.php?nid=18419&md5_url=9791ec942cbcb925635aa5612ae95588'
 
 # Download the last updated CSV.
-response = urllib.urlopen(csv_link)
+response = urllib.request.urlopen(csv_link)
 csv = pandas.read_csv(io.StringIO(response.read().decode('utf-8')))
 
 # Open the database.
-db = sqlite3.connect(db_name)
+db = database.connect_database()
 cursor = db.cursor()
 
 # Create the table if not exists.
