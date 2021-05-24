@@ -24,18 +24,22 @@ def generate_links(stock_number, since_years=5):
   return links
 
 def run(dir_path, years):
+  cnt = 0
   csv_link = 'https://quality.data.gov.tw/dq_download_csv.php?nid=18419&md5_url=9791ec942cbcb925635aa5612ae95588'
   # Download the last updated CSV.
   response = urllib.request.urlopen(csv_link)
   csv = pandas.read_csv(io.StringIO(response.read().decode('utf-8')))
   company_list = csv.loc[:, ['公司名稱', '公司簡稱', '公司代號', '產業別']]
-  for _, info in company_list.iterrows():
-    stock_number = info['公司代號']
-    links = generate_links(stock_number, years)
-    file_name = os.path.join(dir_path, '{}.txt'.format(stock_number))
-    with open(file_name, 'w') as txt:
+  # Write all of links to a file.
+  with open(os.path.join(dir_path, 'links.txt'), 'w') as txt:
+    for _, info in company_list.iterrows():
+      stock_name = info['公司簡稱']
+      stock_number = info['公司代號']
+      links = generate_links(stock_number, years)
       txt.write('\n'.join(links))
-    print('Created the {}.'.format(file_name))
+      cnt += len(links)
+      print('{:5}: {}.'.format(stock_number, stock_name))
+  print('Total {} links.'.format(cnt))
   company_list.to_csv(os.path.join(dir_path, 'company_list.csv'), index=False)
 
 if __name__ == '__main__':
